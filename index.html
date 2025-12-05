@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Code Sharing — 9 Python Snippets</title>
+  <style>
+    :root{--bg:#f4f4f9;--card:#ffffff;--muted:#444;--accent:#007bff}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;padding:0;display:none}
+    header{background:#222;color:#fff;padding:12px 16px;text-align:left}
+    header h1{margin:0;font-size:18px}
+    .container{width:90%;max-width:1000px;margin:18px auto 60px}
+    .nav{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px;justify-content:center}
+    .nav a{padding:6px 10px;background:#fff;border-radius:6px;text-decoration:none;color:var(--muted);border:1px solid #eee;font-weight:600}
+    .code-section{background:var(--card);padding:14px;border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,0.06);margin-bottom:18px;position:relative}
+    .code-section h3{margin:0 0 8px;font-size:15px;color:#111}
+    pre{background:#f7f7fb;border:1px solid #eee;padding:12px;border-radius:6px;overflow:auto;white-space:pre-wrap;word-break:break-word;margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,monospace;font-size:13px}
+    .copy-btn{position:absolute;right:14px;top:14px;background:var(--accent);color:#fff;border:0;padding:6px 10px;border-radius:6px;cursor:pointer;font-weight:700}
+    .copy-btn:active{transform:translateY(1px)}
+    @media (max-width:600px){.copy-btn{right:10px;top:10px;padding:5px 8px;font-size:12px}}
+  </style>
+</head>
+<body onload="askPassword()">
+  <header>
+    <h1>Code Sharing — 9 Python Snippets</h1>
+  </header>
+
+  <div class="container">
+
+    <div class="nav">
+      <a href="#slot1">Slot 1</a>
+      <a href="#slot2">Slot 2</a>
+      <a href="#slot3">Slot 3</a>
+      <a href="#slot4">Slot 4</a>
+      <a href="#slot5">Slot 5</a>
+      <a href="#slot6">Slot 6</a>
+      <a href="#slot7">Slot 7</a>
+      <a href="#slot8">Slot 8</a>
+      <a href="#slot9">Slot 9</a>
+    </div>
+
+    <!-- Slot 1 -->
+    <div id="slot1" class="code-section">
+      <h3>Slot 1 — Water Jug (BFS)</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+from collections import deque
+
+def water_jug_bfs(capacity_a, capacity_b, target):
+    visited = set()
+    queue = deque([(0, 0, [])])
+
+    while queue:
+        a, b, path = queue.popleft()
+
+        # If we reach the target, return the path including this step
+        if a == target or b == target:
+            return path + [(a, b)]
+
+        if (a, b) in visited:
+            continue
+        visited.add((a, b))
+
+        # ALL possible next states
+        next_states = [
+            (capacity_a, b),           # Fill jug A
+            (a, capacity_b),           # Fill jug B
+            (0, b),                    # Empty jug A
+            (a, 0),                    # Empty jug B
+            (max(0, a - (capacity_b - b)), min(b + a, capacity_b)),  # Pour A -> B
+            (min(a + b, capacity_a), max(0, b - (capacity_a - a)))   # Pour B -> A
+        ]
+
+        for new_a, new_b in next_states:
+            if (new_a, new_b) not in visited:
+                queue.append((new_a, new_b, path + [(a, b)]))
+
+    return None  # No solution found
+
+
+# Test
+jug_capacity_a = 4
+jug_capacity_b = 3
+target_amount = 2
+
+solution_path = water_jug_bfs(jug_capacity_a, jug_capacity_b, target_amount)
+if solution_path:
+    print("Solution path:")
+    for step in solution_path:
+        print(f"({step[0]},{step[1]})")
+else:
+    print("No solution found")
+      </pre>
+    </div>
+
+    <!-- Slot 2 -->
+    <div id="slot2" class="code-section">
+      <h3>Slot 2 — Minimax</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+import math
+
+def minimax(curDepth, nodeIndex, maxTurn, scores, targetDepth):
+    if curDepth == targetDepth:
+        return scores[nodeIndex]
+
+    if maxTurn:
+        return max(
+            minimax(curDepth + 1, nodeIndex * 2, False, scores, targetDepth),
+            minimax(curDepth + 1, nodeIndex * 2 + 1, False, scores, targetDepth)
+        )
+    else:
+        return min(
+            minimax(curDepth + 1, nodeIndex * 2, True, scores, targetDepth),
+            minimax(curDepth + 1, nodeIndex * 2 + 1, True, scores, targetDepth)
+        )
+
+scores = [3, 5, 2, 9, 12, 5, 23, 23]
+treeDepth = int(math.log(len(scores), 2))
+
+print("The optimal value is: ", end="")
+print(minimax(0, 0, True, scores, treeDepth))
+      </pre>
+    </div>
+
+    <!-- Slot 3 -->
+    <div id="slot3" class="code-section">
+      <h3>Slot 3 — K-Means Clustering</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+
+X, _ = make_blobs(n_samples=300, centers=4, random_state=42)
+
+kmeans = KMeans(n_clusters=4)
+kmeans.fit(X)
+
+labels = kmeans.cluster_centers_
+
+plt.scatter(X[:, 0], X[:, 1], c=kmeans.labels_, cmap='viridis', edgecolors='k')
+
+plt.title('K-Means Clustering')
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+
+# Plot centroids
+centroids = kmeans.cluster_centers_
+plt.scatter(centroids[:, 0], centroids[:, 1], marker='x', s=200, color='red')
+
+plt.show()
+      </pre>
+    </div>
+
+    <!-- Slot 4 -->
+    <div id="slot4" class="code-section">
+      <h3>Slot 4 — Naive Bayes (example)</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+import numpy as nm
+import matplotlib.pyplot as mtp
+import pandas as pd
+
+dataset = pd.read_csv('user_data.csv')
+x = dataset.iloc[:, [2, 3]].values
+y = dataset.iloc[:, 4].values
+
+print(dataset)
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.25, random_state = 0)
+
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+x_train = sc.fit_transform(x_train)
+x_test = sc.transform(x_test)
+
+from sklearn.naive_bayes import GaussianNB
+classifier = GaussianNB()
+classifier.fit(x_train, y_train)
+
+y_pred = classifier.predict(x_test)
+
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+      </pre>
+    </div>
+
+    <!-- Slot 5 -->
+    <div id="slot5" class="code-section">
+      <h3>Slot 5 — Decision Tree + Metrics</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+import numpy as nm
+import matplotlib.pyplot as mtp
+import pandas as pd
+
+data_set = pd.read_csv('user_data.csv')
+x = data_set.iloc[:, [2, 3]].values
+y = data_set.iloc[:, 4].values
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=0)
+
+from sklearn.preprocessing import StandardScaler
+st = StandardScaler()
+x_train = st.fit_transform(x_train)
+x_test = st.transform(x_test)
+
+from sklearn.tree import DecisionTreeClassifier
+classifier = DecisionTreeClassifier(criterion="entropy", random_state=0)
+classifier.fit(x_train, y_train)
+
+y_pred = classifier.predict(x_test)
+
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+
+print("Precision: %f" % precision_score(y_test, y_pred))
+print("Recall: %f" % recall_score(y_test, y_pred))
+print("F1 Score: %f" % f1_score(y_test, y_pred))
+print("Accuracy: %f" % accuracy_score(y_test, y_pred))
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import PrecisionRecallDisplay
+
+PrecisionRecallDisplay.from_estimator(classifier, x_test, y_test)
+plt.show()
+      </pre>
+    </div>
+
+    <!-- Slot 6 -->
+    <div id="slot6" class="code-section">
+      <h3>Slot 6 — N-Queens</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+N=4
+ld=[0]*30
+rd=[0]*30
+cl=[0]*30
+
+def printSolution(board):
+    for i in range(N):
+        for j in range(N):
+            print("1" if board[i][j]==1 else "0", end=" ")
+        print()
+
+def solveNQUtil(board, col):
+    if col==N:
+        return True
+
+    for i in range(N):
+        if ((ld[i-col+N-1]!=1) and (rd[i+col]!=1) and (cl[i]!=1)):
+            board[i][col]=1
+            ld[i-col+N-1]=rd[i+col]=cl[i]=1
+
+            if solveNQUtil(board, col+1):
+                return True
+
+            board[i][col]=0
+            ld[i-col+N-1]=rd[i+col]=cl[i]=0
+
+    return False
+
+def solveNQ():
+    board=[[0 for _ in range(N)]for _ in range(N)]
+    if not solveNQUtil(board, 0):
+        print("Solution does not exist")
+        return False
+    printSolution(board)
+    return True
+
+if __name__ == "__main__":
+    solveNQ()
+      </pre>
+    </div>
+
+    <!-- Slot 7 -->
+    <div id="slot7" class="code-section">
+      <h3>Slot 7 — Image Processing (PIL + OpenCV)</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+from PIL import Image,ImageFilter
+import os,sys
+import cv2
+from matplotlib import pyplot as plt
+im=Image.open("img1.png")
+im=im.rotate(90)
+im.show()
+size=(128,128)
+im1=im.resize(size)
+im1.save("img128.png")
+
+blurImage=im.filter(ImageFilter.BLUR)
+blurImage.show()
+blurImage.save("Bluring.png")
+
+img=cv2.imread('img1.png',0)
+cv2.imshow('GrayscaleImage',img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+img=cv2.imread('img1.png',cv2.IMREAD_GRAYSCALE)
+edges=cv2.Canny(img,100,200)
+plt.subplot(121),plt.imshow(img,cmap='gray')
+plt.title('Original Image'),plt.xticks([]),plt.yticks([])
+plt.subplot(122),plt.imshow(edges,cmap='gray')
+plt.title('Edge Image'),plt.xticks([]),plt.yticks([])
+plt.show()
+
+ret,thresh1=cv2.threshold(img,122,25,cv2.THRESH_BINARY)
+plt.subplot(122),plt.imshow(thresh1,cmap='gray')
+plt.title('Segmented Image'),plt.xticks([]),plt.yticks([])
+plt.show()
+      </pre>
+    </div>
+
+    <!-- Slot 8 -->
+    <div id="slot8" class="code-section">
+      <h3>Slot 8 — NLP: Tokenize / Stemming</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+# Download (first time only)
+# nltk.download('punkt')
+# nltk.download('stopwords')
+
+text = "Tokenizing is an important concept under NLP. Happy learning"
+
+# Sentence Tokenization
+print("Sentence tokens:", sent_tokenize(text))
+
+# Word Tokenization
+print("Word tokens:", word_tokenize(text))
+
+# Stopwords Removal
+stop_words = set(stopwords.words("english"))
+words = text.split()
+
+print("Content without stopwords:")
+for w in words:
+    if w.lower() not in stop_words:
+        print(w)
+
+# Stemming
+ps = PorterStemmer()
+words = ["Program", "Programs", "Programmer", "Programming", "Programmers"]
+
+print("\nStemming Output:")
+for w in words:
+    print(w, ":", ps.stem(w))
+      </pre>
+    </div>
+
+    <!-- Slot 9 -->
+    <div id="slot9" class="code-section">
+      <h3>Slot 9 — NLP: POS / Chunk / NER</h3>
+      <button class="copy-btn" onclick="copySection(this)">Copy</button>
+      <pre>
+# 8(b)
+
+import nltk
+from textblob import TextBlob
+
+# POS TAGGING
+sentence = "I am learning NLP in Python"
+blob = TextBlob(sentence)
+pos_tags = blob.tags
+print("POS Tags:")
+print(pos_tags)
+
+# CHUNKING USING REGEX
+import re
+
+test_str = "R R A First Grade College"
+print("\nOriginal String:", test_str)
+
+chunks = re.findall(r'\w+', test_str)
+print("Chunked Output:", chunks)
+
+# NAMED ENTITY RECOGNITION USING SPACY
+import spacy
+
+nlp = spacy.load("en_core_web_sm")
+
+text = "Sir M Visvesvaraya was responsible for the construction of the Krishna Raja Sagara Dam in Mysore"
+doc = nlp(text)
+
+print("\nNamed Entities:")
+for ent in doc.ents:
+    print(ent.text, ":", ent.label_)
+      </pre>
+    </div>
+
+  </div>
+
+<script>
+  function askPassword(){
+    var pwd = prompt("Enter password to access:");
+    if(pwd === "admin"){
+      document.body.style.display = "block";
+      window.scrollTo(0,0);
+    } else {
+      alert("Incorrect password");
+      window.location.href = "about:blank";
+    }
+  }
+
+  // Copy only the code inside the section where the clicked button lives
+  async function copySection(btn){
+    try{
+      const section = btn.closest('.code-section');
+      if(!section) return;
+      const pre = section.querySelector('pre');
+      if(!pre) return;
+      const code = pre.innerText;
+      await navigator.clipboard.writeText(code);
+      const original = btn.textContent;
+      btn.textContent = 'Copied ✓';
+      setTimeout(()=> btn.textContent = original, 1200);
+    }catch(err){
+      // fallback
+      try{
+        const section = btn.closest('.code-section');
+        const pre = section.querySelector('pre');
+        const ta = document.createElement('textarea');
+        ta.value = pre ? pre.innerText : '';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const original = btn.textContent;
+        btn.textContent = 'Copied ✓';
+        setTimeout(()=> btn.textContent = original, 1200);
+      }catch(e){
+        alert('Copy failed. Select the code manually and copy.');
+      }
+    }
+  }
+</script>
+</body>
+</html>
