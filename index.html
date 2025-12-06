@@ -366,38 +366,41 @@ for w in words:
       <h3>Slot 9 — NLP: POS / Chunk / NER</h3>
       <button class="copy-btn" onclick="copySection(this)">Copy</button>
       <pre>
-# 8(b)
 
 import nltk
 from textblob import TextBlob
 
-# POS TAGGING
 sentence = "I am learning NLP in Python"
-blob = TextBlob(sentence)
-pos_tags = blob.tags
-print("POS Tags:")
+text_blob = TextBlob(sentence)
+pos_tags = text_blob.tags
 print(pos_tags)
 
-# CHUNKING USING REGEX
 import re
 
-test_str = "R R A First Grade College"
-print("\nOriginal String:", test_str)
+test_str = "R A F First Grade College"
+print("The original string is:", test_str)
 
-chunks = re.findall(r'\w+', test_str)
-print("Chunked Output:", chunks)
+# Corrected: re.findall must take (pattern, string)
+res = re.findall(r"[A-Z][a-z]*", test_str)
+print("The chunked list is:", res)
 
-# NAMED ENTITY RECOGNITION USING SPACY
+
 import spacy
 
 nlp = spacy.load("en_core_web_sm")
+ner_categories = ["PERSON", "GPE", "FAC"]
 
 text = "Sir M Visvesvaraya was responsible for the construction of the Krishna Raja Sagara Dam in Mysore"
 doc = nlp(text)
 
-print("\nNamed Entities:")
+entities = []
 for ent in doc.ents:
-    print(ent.text, ":", ent.label_)
+    if ent.label_ in ner_categories:
+        entities.append((ent.text, ent.label_))
+
+for entity in entities:
+    print(entity)
+
       </pre>
     </div>
 
@@ -449,3 +452,4 @@ for ent in doc.ents:
 </script>
 </body>
 </html>
+
